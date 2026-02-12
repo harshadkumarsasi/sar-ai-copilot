@@ -1,20 +1,9 @@
-"""
-LLM interface for SAR AI Copilot.
-
-Responsibilities:
-- Initialize the language model
-- Enforce system-level SAR instructions
-- Generate structured SAR narratives (Situation, Assessment, Recommendation)
-
-This file is model-agnostic and can switch between providers later.
-"""
-
-from typing import Dict, Any
 from dataclasses import dataclass
+from typing import Dict, Any
 
-from langchain.prompts import ChatPromptTemplate
-from langchain.schema import StrOutputParser
-from langchain.chat_models import ChatOpenAI
+from langchain_community.chat_models import ChatOllama
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 
 
 @dataclass
@@ -25,44 +14,40 @@ class SARInput:
 
 
 class SARLLM:
-    def __init__(self, temperature: float = 0.2):
-        """
-        Initialize the LLM.
-        Low temperature is intentional for compliance-style writing.
-        """
-        self.llm = ChatOpenAI(
-            model="gpt-4o-mini",
-            temperature=temperature,
+    def __init__(self):
+        # Local Ollama model (must be running via `ollama serve`)
+        self.llm = ChatOllama(
+            model="mistral",  # change to "llama3" if you downloaded that instead
+            temperature=0.2
         )
 
-        self.prompt = ChatPromptTemplate.from_messages(
-            [
-                (
-                    "system",
-                    """
-You are a compliance-grade AI assistant helping a bank analyst draft a Suspicious Activity Report (SAR).
+        self.prompt = ChatPromptTemplate.from_messages([
+            (
+                "system",
+                """
+You are a compliance-grade AI assistant helping draft a Suspicious Activity Report (SAR).
 
-Rules you MUST follow:
-- Write in formal, regulator-ready language
-- Do NOT make accusations; describe observations objectively
+Rules:
+- Use formal regulator-ready tone
+- Do NOT make accusations
 - Base reasoning strictly on provided data
-- Be concise, structured, and explainable
+- Be structured and concise
 
-Output format MUST be:
+Output format:
 
 SITUATION:
-<what triggered the alert>
+<describe what triggered the alert>
 
 ASSESSMENT:
-<analysis of transactions and risk indicators>
+<analyze risk indicators>
 
 RECOMMENDATION:
-<why this activity merits SAR consideration>
-                    """,
-                ),
-                (
-                    "human",
-                    """
+<justify SAR consideration>
+"""
+            ),
+            (
+                "human",
+                """
 Customer Profile:
 {customer_profile}
 
@@ -71,21 +56,15 @@ Transaction Summary:
 
 Alert Reason:
 {alert_reason}
-                    """,
-                ),
-            ]
-        )
+"""
+            )
+        ])
 
         self.chain = self.prompt | self.llm | StrOutputParser()
 
     def generate_sar(self, sar_input: SARInput) -> str:
-        """
-        Generate a SAR narrative draft.
-        """
-        return self.chain.invoke(
-            {
-                "customer_profile": sar_input.customer_profile,
-                "transaction_summary": sar_input.transaction_summary,
-                "alert_reason": sar_input.alert_reason,
-            }
-        )
+        return self.chain.invoke({
+            "customer_profile": sar_input.customer_profile,
+            "transaction_summary": sar_input.transaction_summary,
+            "alert_reason": sar_input.alert_reason
+        })
