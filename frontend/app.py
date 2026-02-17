@@ -149,7 +149,7 @@ with st.sidebar:
     st.markdown("---")
 
     selected_tab = st.radio(
-        "Navigation",
+        "Navigation Menu",
         ["Dashboard", "Governance"],
         label_visibility="collapsed"
     )
@@ -158,7 +158,7 @@ with st.sidebar:
 
     st.markdown("**Theme**")
     theme_choice = st.radio(
-        "",
+        "Theme Selection",
         ["Light Mode", "Dark Mode"],
         index=0 if st.session_state.theme == "light" else 1,
         horizontal=True,
@@ -216,227 +216,555 @@ if "selected_case" not in st.session_state:
 if st.session_state.selected_case is None:
 
     if selected_tab != "Dashboard":
-        st.title("Governance & Administration")
-        st.info("Governance module coming soon.")
-        st.stop()
 
-    st.title("Case Intake Dashboard")
-    st.caption("Alert queue and case assignment")
+        st.markdown("""
+        <style>
+        .gov-header {
+            padding: 20px 0 10px 0;
+        }
+        .gov-title {
+            font-size: 28px;
+            font-weight: 700;
+        }
+        .gov-sub {
+            font-size: 14px;
+            color: #94A3B8;
+            margin-top: 6px;
+        }
+        .gov-card {
+            padding: 18px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+            background-color: rgba(30,41,59,0.4);
+        }
+        .gov-metric {
+            font-size: 26px;
+            font-weight: 700;
+            margin-top: 8px;
+        }
+        .gov-label {
+            font-size: 13px;
+            color: #94A3B8;
+        }
+        .role-badge {
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .role-analyst { background:#1E40AF; color:white; }
+        .role-manager { background:#6D28D9; color:white; }
+        .role-admin { background:#B91C1C; color:white; }
+        .timeline-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #334155;
+            font-size: 14px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
-    # -------------------------------
-    # Filters
-    # -------------------------------
-    col1, col2, col3, col4, col5 = st.columns([2,1,1,1,0.6])
+        st.markdown('<div class="gov-header">', unsafe_allow_html=True)
+        st.markdown('<div class="gov-title">Governance & Administration</div>', unsafe_allow_html=True)
+        st.markdown('<div class="gov-sub">Role-based access control, audit monitoring, and model oversight.</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    search_query = col1.text_input("Search cases", placeholder="Search by customer or case ID")
-    risk_filter = col2.selectbox("Risk Level", ["All", "High", "Medium", "Low"])
-    status_filter = col3.selectbox("Status", ["All", "NEW", "UNDER_REVIEW", "SAR_DRAFTED"])
-    geography_filter = col4.selectbox("Geography", ["All", "APAC", "EMEA", "US"])
+        # KPI CARDS
+        g1, g2, g3, g4 = st.columns(4)
 
-    with col5:
-        clear_filters = st.button("Clear")
+        with g1:
+            st.markdown('<div class="gov-card">👥<div class="gov-metric">12</div><div class="gov-label">Total Users</div></div>', unsafe_allow_html=True)
 
-    if clear_filters:
-        st.rerun()
+        with g2:
+            st.markdown('<div class="gov-card">🧑‍💻<div class="gov-metric">6</div><div class="gov-label">Analysts</div></div>', unsafe_allow_html=True)
 
-    st.markdown("")
+        with g3:
+            st.markdown('<div class="gov-card">🛡<div class="gov-metric">3</div><div class="gov-label">Managers</div></div>', unsafe_allow_html=True)
 
-    # -------------------------------
-    # KPI Cards
-    # -------------------------------
-    total_cases = len(st.session_state.cases)
-    high_risk = len([c for c in st.session_state.cases if c["risk_score"] >= 80])
-    open_cases = len([c for c in st.session_state.cases if c["status"] in ["NEW", "UNDER_REVIEW"]])
-    overdue = 0  # demo placeholder
+        with g4:
+            st.markdown('<div class="gov-card">🔐<div class="gov-metric">3</div><div class="gov-label">Admins</div></div>', unsafe_allow_html=True)
 
-    k1, k2, k3, k4 = st.columns(4)
+        st.markdown("")
 
-    with k1:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-title">Total Cases</div><div class="kpi-value">{total_cases}</div></div>', unsafe_allow_html=True)
+        # USER TABLE
+        st.markdown('<div class="gov-card">', unsafe_allow_html=True)
+        st.markdown("**User Directory**")
 
-    with k2:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-title">High Risk</div><div class="kpi-value">{high_risk}</div></div>', unsafe_allow_html=True)
+        th1, th2, th3, th4 = st.columns([1.5,2,2,1.5])
+        th1.markdown("**User ID**")
+        th2.markdown("**Full Name**")
+        th3.markdown("**Email**")
+        th4.markdown("**Role**")
 
-    with k3:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-title">Open Cases</div><div class="kpi-value">{open_cases}</div></div>', unsafe_allow_html=True)
+        users = [
+            ("U-001", "John Doe", "john@bank.com", "Analyst"),
+            ("U-002", "Priya Sharma", "priya@bank.com", "Manager"),
+            ("U-003", "Alex Tan", "alex@bank.com", "Admin"),
+        ]
 
-    with k4:
-        st.markdown(f'<div class="kpi-card"><div class="kpi-title">Overdue</div><div class="kpi-value">{overdue}</div></div>', unsafe_allow_html=True)
+        for uid, name, email, role in users:
+            c1, c2, c3, c4 = st.columns([1.5,2,2,1.5])
+            c1.markdown(uid)
+            c2.markdown(name)
+            c3.markdown(email)
 
-    st.markdown('<div class="case-table-header"></div>', unsafe_allow_html=True)
+            if role == "Analyst":
+                c4.markdown('<span class="role-badge role-analyst">Analyst</span>', unsafe_allow_html=True)
+            elif role == "Manager":
+                c4.markdown('<span class="role-badge role-manager">Manager</span>', unsafe_allow_html=True)
+            else:
+                c4.markdown('<span class="role-badge role-admin">Admin</span>', unsafe_allow_html=True)
 
-    h1, h2, h3, h4, h5, h6, h7 = st.columns([0.5,2,1,1,1,1,1])
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    h1.markdown('<div style="text-align:center; font-weight:600;">#</div>', unsafe_allow_html=True)
-    h2.markdown('<div style="text-align:center; font-weight:600;">Customer</div>', unsafe_allow_html=True)
-    h3.markdown('<div style="text-align:center; font-weight:600;">Risk Score</div>', unsafe_allow_html=True)
-    h4.markdown('<div style="text-align:center; font-weight:600;">Status</div>', unsafe_allow_html=True)
-    h5.markdown('<div style="text-align:center; font-weight:600;">Type</div>', unsafe_allow_html=True)
-    h6.markdown('<div style="text-align:center; font-weight:600;">Region</div>', unsafe_allow_html=True)
-    h7.markdown('<div style="text-align:center; font-weight:600;">Action</div>', unsafe_allow_html=True)
+        st.markdown("")
 
-    for case in st.session_state.cases:
-        c1, c2, c3, c4, c5, c6, c7 = st.columns([0.5,2,1,1,1,1,1])
+        # SYSTEM STATUS
+        s1, s2 = st.columns(2)
 
-        c1.markdown(
-            f'<div style="display:flex; justify-content:center; align-items:center;">'
-            f'<span class="case-id-badge">{case["case_id"]}</span></div>',
-            unsafe_allow_html=True
-        )
-
-        c2.markdown(
-            f'<div style="display:flex; justify-content:center; align-items:center; font-weight:500;">'
-            f'{case["customer_name"]}</div>',
-            unsafe_allow_html=True
-        )
-
-        c3.markdown(
-            f'<div style="display:flex; justify-content:center; align-items:center;">'
-            f'<span class="risk-badge">{case["risk_score"]}</span></div>',
-            unsafe_allow_html=True
-        )
-
-        c4.markdown(
-            f'<div style="display:flex; justify-content:center; align-items:center;">'
-            f'{case["status"]}</div>',
-            unsafe_allow_html=True
-        )
-
-        c5.markdown(
-            '<div style="display:flex; justify-content:center; align-items:center;">AML</div>',
-            unsafe_allow_html=True
-        )
-
-        c6.markdown(
-            '<div style="display:flex; justify-content:center; align-items:center;">APAC</div>',
-            unsafe_allow_html=True
-        )
-
-        with c7:
-            st.markdown('<div style="display:flex; justify-content:center; align-items:center;">', unsafe_allow_html=True)
-            if st.button("Open", key=f"open_{case['case_id']}"):
-                st.session_state.selected_case = case
-                st.rerun()
+        with s1:
+            st.markdown('<div class="gov-card">', unsafe_allow_html=True)
+            st.markdown("**System Health**")
+            st.markdown("""
+            🟢 AML Engine: Operational  
+            🟢 Database: Connected  
+            🟢 Audit Logging: Enabled  
+            🟢 LLM Model: mistral-v0.3
+            """)
             st.markdown('</div>', unsafe_allow_html=True)
 
-# -------------------------------
-# Case Detail View
-# -------------------------------
+        with s2:
+            st.markdown('<div class="gov-card">', unsafe_allow_html=True)
+            st.markdown("**Recent Activity Logs**")
+            st.markdown("""
+            <div class="timeline-item">🕒 19:42 — SAR generated for Case #1</div>
+            <div class="timeline-item">🕒 19:38 — Analyst login detected</div>
+            <div class="timeline-item">🕒 19:30 — Governance settings updated</div>
+            <div class="timeline-item">🕒 19:12 — Risk model version updated</div>
+            """, unsafe_allow_html=True)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+        st.stop()
+
+    st.markdown("## Case Intake Dashboard")
+    st.caption("Operational AML monitoring and case workflow management")
+
+    # ===============================
+    # TOP METRICS ROW
+    # ===============================
+    total_cases = len(st.session_state.cases)
+    high_risk = len([c for c in st.session_state.cases if c["risk_score"] >= 80])
+    medium_risk = len([c for c in st.session_state.cases if 70 <= c["risk_score"] < 80])
+    low_risk = len([c for c in st.session_state.cases if c["risk_score"] < 70])
+
+    m1, m2, m3, m4 = st.columns(4)
+
+    m1.metric("Total Active Cases", total_cases)
+    m2.metric("High Risk Cases", high_risk)
+    m3.metric("Medium Risk Cases", medium_risk)
+    m4.metric("Low Risk Cases", low_risk)
+
+    st.markdown("---")
+
+    # ===============================
+    # WORKFLOW PIPELINE
+    # ===============================
+    st.markdown("### Case Workflow Pipeline")
+
+    new_cases = len([c for c in st.session_state.cases if c["status"] == "NEW"])
+    under_review = len([c for c in st.session_state.cases if c["status"] == "UNDER_REVIEW"])
+    drafted = len([c for c in st.session_state.cases if c["status"] == "SAR_DRAFTED"])
+
+    p1, p2, p3 = st.columns(3)
+    p1.metric("NEW", new_cases)
+    p2.metric("UNDER REVIEW", under_review)
+    p3.metric("SAR DRAFTED", drafted)
+
+    st.markdown("---")
+
+    # ===============================
+    # FILTERS
+    # ===============================
+    f1, f2, f3, f4 = st.columns(4)
+
+    search_query = f1.text_input("Search", placeholder="Customer name or Case ID")
+    risk_filter = f2.selectbox("Risk Level", ["All", "High", "Medium", "Low"])
+    status_filter = f3.selectbox("Status", ["All", "NEW", "UNDER_REVIEW", "SAR_DRAFTED"])
+    geography_filter = f4.selectbox("Region", ["All", "APAC", "EMEA", "US"])
+
+    st.markdown("---")
+
+    # ===============================
+    # CASE TABLE HEADER
+    # ===============================
+    h1, h2, h3, h4, h5, h6, h7, h8 = st.columns([0.6,2,1.2,1.2,1,1,1.2,1])
+
+    h1.markdown("**#**")
+    h2.markdown("**Customer**")
+    h3.markdown("**Risk Score**")
+    h4.markdown("**Risk Tier**")
+    h5.markdown("**Status**")
+    h6.markdown("**Type**")
+    h7.markdown("**SLA (hrs)**")
+    h8.markdown("**Action**")
+
+    st.markdown("---")
+
+    # ===============================
+    # CASE ROWS
+    # ===============================
+    for case in st.session_state.cases:
+
+        if risk_filter == "High" and case["risk_score"] < 80:
+            continue
+        if risk_filter == "Medium" and not (70 <= case["risk_score"] < 80):
+            continue
+        if risk_filter == "Low" and case["risk_score"] >= 70:
+            continue
+        if status_filter != "All" and case["status"] != status_filter:
+            continue
+        if search_query and search_query.lower() not in case["customer_name"].lower():
+            continue
+
+        if case["risk_score"] >= 80:
+            risk_tier = "High"
+            risk_color = "🔴"
+        elif case["risk_score"] >= 70:
+            risk_tier = "Medium"
+            risk_color = "🟠"
+        else:
+            risk_tier = "Low"
+            risk_color = "🟢"
+
+        sla_hours = 4 - case["case_id"]  # demo SLA logic
+
+        c1, c2, c3, c4, c5, c6, c7, c8 = st.columns([0.6,2,1.2,1.2,1,1,1.2,1])
+
+        c1.write(case["case_id"])
+        c2.write(case["customer_name"])
+        c3.write(case["risk_score"])
+        c4.write(f"{risk_color} {risk_tier}")
+        c5.write(case["status"])
+        c6.write("AML")
+        c7.write(f"{sla_hours}h")
+
+        with c8:
+            if st.button("Open", key=f"open_case_{case['case_id']}"):
+                st.session_state.selected_case = case
+                st.rerun()
+
 else:
     case = st.session_state.selected_case
 
-    st.subheader(f"📄 Case #{case['case_id']} - {case['customer_name']}")
+    st.markdown("""
+    <style>
+    .bb-header {
+        padding: 20px 0;
+        border-bottom: 1px solid #334155;
+        margin-bottom: 20px;
+    }
+    .bb-title {
+        font-size: 28px;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+    .bb-meta {
+        font-size: 13px;
+        color: #94A3B8;
+        margin-top: 6px;
+    }
+    .bb-badge-high {
+        background:#7F1D1D;
+        color:#FCA5A5;
+        padding:4px 10px;
+        border-radius:6px;
+        font-size:12px;
+        font-weight:600;
+    }
+    .bb-card {
+        background:#111827;
+        border:1px solid #1F2937;
+        border-radius:10px;
+        padding:18px;
+        margin-bottom:18px;
+    }
+    .bb-card:empty {
+        display: none !important;
+    }
+    .bb-section-title {
+        font-size:14px;
+        font-weight:700;
+        letter-spacing:0.5px;
+        color:#9CA3AF;
+        margin-bottom:12px;
+        text-transform:uppercase;
+    }
+    .bb-metric {
+        font-size:22px;
+        font-weight:700;
+    }
+    .bb-small {
+        font-size:12px;
+        color:#6B7280;
+    }
+    .bb-risk-gauge {
+        width:120px;
+        height:120px;
+        border-radius:50%;
+        background:conic-gradient(#DC2626 calc(var(--risk)*1%), #1F2937 0%);
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-size:26px;
+        font-weight:700;
+        color:white;
+        margin:auto;
+    }
+    .bb-divider {
+        border-top:1px solid #1F2937;
+        margin:20px 0;
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-    st.markdown(f"**Customer ID:** {case['customer_id']}")
-    st.markdown(f"**Risk Score:** {case['risk_score']}")
-    st.markdown(f"**Current Status:** {case['status']}")
+    # ===============================
+    # HEADER
+    # ===============================
+    st.markdown("""
+    <div style="font-size:36px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; color:#F1F5F9; margin-bottom:18px;">
+    Case Details Overview
+    </div>
+    """, unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("### 🚨 Risk Breakdown")
+    header_left, header_right = st.columns([4,1])
 
-    risk_signals = []
+    with header_left:
+        st.markdown('<div class="bb-header">', unsafe_allow_html=True)
+        st.markdown(
+            f'<div class="bb-title">CASE #{case["case_id"]} — {case["customer_name"]} '
+            f'<span class="bb-badge-high">HIGH RISK</span></div>'
+            f'<div class="bb-small" style="margin-top:4px;">'
+            f'Case Severity: Critical | Escalation Tier: 3 | Monitoring Priority: Immediate'
+            f'</div>',
+            unsafe_allow_html=True
+        )
+        st.markdown(
+            f'<div class="bb-meta">Customer ID: {case["customer_id"]} | '
+            f'Risk Score: {case["risk_score"]} | '
+            f'Status: {case["status"]} | Region: APAC | Tier: 3</div>',
+            unsafe_allow_html=True
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    # Rule-based risk indicators for demo realism
-    if case["risk_score"] >= 80:
-        risk_signals.append("🔴 High Overall Risk Score")
-    elif case["risk_score"] >= 70:
-        risk_signals.append("🟠 Elevated Risk Score")
+    with header_right:
+        st.markdown("<div style='height:60px;'></div>", unsafe_allow_html=True)
+        if st.button("Back to Dashboard", use_container_width=True):
+            st.session_state.selected_case = None
+            st.rerun()
 
-    if "offshore" in case["transaction_summary"].lower() or "cross-border" in case["alert_reason"].lower():
-        risk_signals.append("🔴 Cross-Border / Offshore Activity Detected")
+    left, right = st.columns([2,1])
 
-    if "spike" in case["alert_reason"].lower() or "multiple" in case["transaction_summary"].lower():
-        risk_signals.append("🟠 Sudden Transaction Volume Increase")
+    # ===============================
+    # LEFT COLUMN – DATA HEAVY
+    # ===============================
+    with left:
 
-    if "new" in case["transaction_summary"].lower() or "beneficiary" in case["transaction_summary"].lower():
-        risk_signals.append("🟡 Newly Added Beneficiary Activity")
+        # -----------------------------
+        # TRANSACTION INTELLIGENCE
+        # -----------------------------
+        st.markdown('<div class="bb-card">', unsafe_allow_html=True)
+        st.markdown('<div class="bb-section-title">Transaction Intelligence</div>', unsafe_allow_html=True)
 
-    if not risk_signals:
-        risk_signals.append("🟢 No major rule-based red flags detected")
+        c1, c2, c3 = st.columns(3)
+        c1.markdown('<div class="bb-metric">17</div><div class="bb-small">Flagged Transactions</div>', unsafe_allow_html=True)
+        c2.markdown('<div class="bb-metric">$482K</div><div class="bb-small">Total Exposure</div>', unsafe_allow_html=True)
+        c3.markdown('<div class="bb-metric">+240%</div><div class="bb-small">Peer Deviation</div>', unsafe_allow_html=True)
 
-    for signal in risk_signals:
-        st.write(signal)
+        st.markdown('<div class="bb-divider"></div>', unsafe_allow_html=True)
 
-    st.markdown("---")
+        st.markdown("**Top Risk Drivers**")
+        st.markdown("""
+        • Cross-border velocity anomaly  
+        • Offshore beneficiary linkage  
+        • Sudden transaction spike  
+        • Behavioural deviation from baseline  
+        """)
 
-    st.markdown("### 🔎 Alert Details")
-    st.write("**Alert Reason:**", case["alert_reason"])
-    st.write("**Transaction Summary:**", case["transaction_summary"])
+        st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("---")
+        # -----------------------------
+        # TRANSACTION VELOCITY (MOVED HERE)
+        # -----------------------------
+        st.markdown('<div class="bb-card">', unsafe_allow_html=True)
+        st.markdown('<div class="bb-section-title">Transaction Velocity (Last 7 Days)</div>', unsafe_allow_html=True)
 
-    # Generate SAR
-    if st.button("Generate SAR"):
-        customer_profile = {
-            "customer_id": case["customer_id"],
-            "customer_name": case["customer_name"],
-            "risk_score": case["risk_score"],
-        }
+        v1, v2 = st.columns([3,1])
+        with v1:
+            st.progress(85)
+            st.caption("Cross-border transaction velocity vs historical baseline")
 
-        sar_input = SARInput(
-            customer_profile=customer_profile,
-            transaction_summary={"summary": case["transaction_summary"]},
-            alert_reason=case["alert_reason"],
+        with v2:
+            st.markdown('<div class="bb-metric">+12%</div><div class="bb-small">Weekly Increase</div>', unsafe_allow_html=True)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        # -----------------------------
+        # FINANCIAL EXPOSURE
+        # -----------------------------
+        st.markdown('<div class="bb-card">', unsafe_allow_html=True)
+        st.markdown('<div class="bb-section-title">Financial Exposure Breakdown</div>', unsafe_allow_html=True)
+
+        st.markdown("""
+        Highest Single Transfer: $125,000  
+        Offshore Jurisdictions: 3  
+        PEP Screening: Negative  
+        Sanctions Hit: None  
+        Monitoring Window: 30 Days  
+        """)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        # -----------------------------
+        # RECENT TRANSACTION TIMELINE (MOVED HERE)
+        # -----------------------------
+        st.markdown('<div class="bb-card">', unsafe_allow_html=True)
+        st.markdown('<div class="bb-section-title">Recent Transaction Timeline</div>', unsafe_allow_html=True)
+
+        st.markdown("""
+        • Day -7: $45,000 transfer to SG entity  
+        • Day -5: $62,000 transfer to HK beneficiary  
+        • Day -3: $125,000 offshore wire (flagged)  
+        • Day -1: $38,000 cross-border movement  
+        """)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        # -----------------------------
+        # ALERT NARRATIVE (NOW LAST)
+        # -----------------------------
+        st.markdown('<div class="bb-card">', unsafe_allow_html=True)
+        st.markdown('<div class="bb-section-title">Alert Narrative</div>', unsafe_allow_html=True)
+        st.write("**Alert Reason:**", case["alert_reason"])
+        st.write("**Transaction Summary:**", case["transaction_summary"])
+        st.markdown('</div>', unsafe_allow_html=True)
+
+    # ===============================
+    # RIGHT COLUMN – RISK + ACTIONS
+    # ===============================
+    with right:
+
+        st.markdown('<div class="bb-card">', unsafe_allow_html=True)
+        st.markdown('<div class="bb-section-title">Risk Assessment</div>', unsafe_allow_html=True)
+
+        st.markdown(
+            f'<div class="bb-risk-gauge" style="--risk:{case["risk_score"]};">'
+            f'{case["risk_score"]}</div>',
+            unsafe_allow_html=True
         )
 
-        sar_output = llm.generate_sar(sar_input)
+        st.markdown("""
+        <div class="bb-small" style="text-align:center; margin-top:10px;">
+        Risk Trend: ↑ 12% (7 days) <br>
+        Model Confidence: 92% <br>
+        AML Model: Hybrid v2.3
+        </div>
+        """, unsafe_allow_html=True)
 
-        trace = explain_engine.capture_trace(
-            case_id=case["case_id"],
-            model_name="mistral (ollama)",
-            input_signals={
-                "customer_profile": customer_profile,
-                "transaction_summary": case["transaction_summary"],
-                "alert_reason": case["alert_reason"],
-            },
-            retrieved_context="",
-        )
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        case["status"] = "SAR_DRAFTED"
+        # --- Model Explainability + Regulatory Impact card ---
+        st.markdown('<div class="bb-card">', unsafe_allow_html=True)
+        st.markdown('<div class="bb-section-title">Model Explainability</div>', unsafe_allow_html=True)
 
-        # Store SAR in session for PDF export
-        st.session_state.generated_sar = sar_output
-        st.session_state.generated_trace = trace
+        st.markdown("""
+        Primary Model: Hybrid Rules + ML  
+        SHAP Feature Impact: High on cross-border weight  
+        Anomaly Score Percentile: 94th  
+        False Positive Probability: 8%  
+        """)
 
-        st.success("SAR Draft Generated Successfully")
+        st.markdown('<div class="bb-divider"></div>', unsafe_allow_html=True)
 
-    # Display SAR if already generated
+        st.markdown("**Regulatory Impact Assessment**")
+        st.markdown("""
+        • CTR Threshold Interaction: Yes  
+        • SAR Filing Threshold: Breached  
+        • Jurisdiction Risk Level: Elevated (APAC Offshore)  
+        • Escalation Requirement: Tier 3 Mandatory Review  
+        """)
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
+        st.markdown('<div class="bb-card">', unsafe_allow_html=True)
+        st.markdown('<div class="bb-section-title">Action Center</div>', unsafe_allow_html=True)
+
+        generate_clicked = st.button("Generate SAR", use_container_width=True)
+        escalate_clicked = st.button("Escalate to Manager", use_container_width=True)
+        false_positive_clicked = st.button("Mark as False Positive", use_container_width=True)
+
+        if generate_clicked:
+            with st.spinner("Generating Suspicious Activity Report..."):
+                customer_profile = {
+                    "customer_id": case["customer_id"],
+                    "customer_name": case["customer_name"],
+                    "risk_score": case["risk_score"],
+                }
+
+                sar_input = SARInput(
+                    customer_profile=customer_profile,
+                    transaction_summary={"summary": case["transaction_summary"]},
+                    alert_reason=case["alert_reason"],
+                )
+
+                sar_output = llm.generate_sar(sar_input)
+
+                case["status"] = "SAR_DRAFTED"
+                st.session_state.generated_sar = sar_output
+
+            st.success("SAR Draft Generated Successfully")
+
+        if escalate_clicked:
+            st.warning("Case escalated to Manager")
+
+        if false_positive_clicked:
+            case["status"] = "CLOSED_FALSE_POSITIVE"
+            st.success("Marked as False Positive")
+
+
+        st.markdown('</div>', unsafe_allow_html=True)
+
     if "generated_sar" in st.session_state:
-        st.text_area("SAR Draft", st.session_state.generated_sar, height=400)
+        st.markdown("---")
+        st.subheader("Generated SAR Narrative Report")
 
-        with st.expander("View Reasoning Trace"):
-            st.json(st.session_state.generated_trace.to_dict())
+        st.text_area(
+            "SAR Narrative",
+            st.session_state.generated_sar,
+            height=350
+        )
 
-        # PDF Export
+        # -------- Generate PDF Button BELOW narrative --------
         buffer = BytesIO()
         doc = SimpleDocTemplate(buffer, pagesize=A4)
-        styles = getSampleStyleSheet()
         elements = []
 
-        elements.append(Paragraph("Suspicious Activity Report (SAR)", styles["Title"]))
+        styles = getSampleStyleSheet()
+        elements.append(Paragraph("<b>Suspicious Activity Report</b>", styles["Title"]))
         elements.append(Spacer(1, 12))
 
         elements.append(Paragraph(f"Case ID: {case['case_id']}", styles["Normal"]))
-        elements.append(Paragraph(f"Customer: {case['customer_name']}", styles["Normal"]))
+        elements.append(Paragraph(f"Customer ID: {case['customer_id']}", styles["Normal"]))
         elements.append(Paragraph(f"Risk Score: {case['risk_score']}", styles["Normal"]))
         elements.append(Spacer(1, 12))
 
-        for line in st.session_state.generated_sar.split("\n"):
-            elements.append(Paragraph(line, styles["Normal"]))
-            elements.append(Spacer(1, 6))
+        elements.append(Paragraph(st.session_state.generated_sar.replace("\n", "<br/>"), styles["Normal"]))
 
         doc.build(elements)
         buffer.seek(0)
 
         st.download_button(
-            label="📄 Download SAR as PDF",
+            label="Download SAR as PDF",
             data=buffer,
             file_name=f"SAR_Case_{case['case_id']}.pdf",
-            mime="application/pdf"
+            mime="application/pdf",
+            use_container_width=True
         )
-
-    st.markdown("---")
-
-    if st.button("⬅ Back to Dashboard"):
-        st.session_state.selected_case = None
-        st.rerun()
