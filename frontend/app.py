@@ -31,110 +31,60 @@ from backend.explainability.trace import ExplainabilityEngine
 st.set_page_config(page_title="SAR AI Copilot", layout="wide")
 
 # -------------------------------
-# Theme State
+# Dark Theme (Fixed – No Toggle)
 # -------------------------------
-if "theme" not in st.session_state:
-    st.session_state.theme = "light"
-
 def apply_theme():
-    if st.session_state.theme == "light":
-        primary = "#00AEEF"
-        background = "#F5F7FA"
-        text = "#1A1A1A"
-        card = "#FFFFFF"
-    else:
-        primary = "#00AEEF"
-        background = "#0F172A"
-        text = "#E5E7EB"
-        card = "#1E293B"
+    css_vars = {
+        "bg": "#0F172A",
+        "card": "#111827",
+        "text_primary": "#F1F5F9",
+        "text_secondary": "#94A3B8",
+        "border": "#1F2937",
+        "primary": "#00AEEF",
+        "accent_success": "#22C55E",
+        "accent_danger": "#DC2626",
+        "card_overlay": "rgba(30,41,59,0.4)",
+        "gauge_rest": "#1F2937",
+        "role_analyst": "#1E40AF",
+        "role_manager": "#6D28D9",
+        "role_admin": "#B91C1C",
+    }
 
     st.markdown(
         f"""
         <style>
-        .stApp {{
-            background-color: {background};
-            color: {text};
+        :root {{
+            --bg: {css_vars['bg']};
+            --card: {css_vars['card']};
+            --text-primary: {css_vars['text_primary']};
+            --text-secondary: {css_vars['text_secondary']};
+            --border: {css_vars['border']};
+            --primary: {css_vars['primary']};
+            --accent-success: {css_vars['accent_success']};
+            --accent-danger: {css_vars['accent_danger']};
+            --card-overlay: {css_vars['card_overlay']};
+            --gauge-rest: {css_vars['gauge_rest']};
+            --role-analyst: {css_vars['role_analyst']};
+            --role-manager: {css_vars['role_manager']};
+            --role-admin: {css_vars['role_admin']};
         }}
 
-        /* Remove top black spacing */
+        .stApp {{
+            background-color: var(--bg);
+            color: var(--text-primary);
+        }}
+
         header {{visibility: hidden;}}
         .block-container {{
-            padding-top: 1.5rem;
+            padding-top: 0rem;
         }}
 
-        /* Sidebar styling */
         section[data-testid="stSidebar"] {{
-            background-color: {card};
-        }}
-
-        .sidebar-title {{
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }}
-
-        .sidebar-sub {{
-            font-size: 13px;
-            color: #64748B;
-            margin-bottom: 16px;
-        }}
-
-        .kpi-card {{
-            background-color: {card};
-            padding: 18px;
-            border-radius: 10px;
-            border: 1px solid #E2E8F0;
-        }}
-
-        .kpi-title {{
-            font-size: 13px;
-            color: #64748B;
-        }}
-
-        .kpi-value {{
-            font-size: 26px;
-            font-weight: 600;
-        }}
-
-        .case-table-header {{
-            font-size: 13px;
-            font-weight: 600;
-            color: #64748B;
-            padding: 10px 0;
-            border-bottom: 1px solid #E2E8F0;
-            margin-top: 25px;
-        }}
-
-        .case-row {{
-            padding: 18px 0;
-            border-bottom: 1px solid #E2E8F0;
-        }}
-
-        .case-id-badge {{
-            background-color: #0F172A;
-            color: #22C55E;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            display: inline-block;
-        }}
-
-        .risk-badge {{
-            background-color: #0F172A;
-            color: #22C55E;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            display: inline-block;
-        }}
-
-        .open-btn-container {{
-            display: flex;
-            justify-content: flex-end;
+            background-color: var(--card);
         }}
         </style>
         """,
-        unsafe_allow_html=True
+        unsafe_allow_html=True,
     )
 
 apply_theme()
@@ -142,35 +92,110 @@ apply_theme()
 # -------------------------------
 # Sidebar Navigation
 # -------------------------------
+# -------------------------------
+# Navigation State Initialization
+# -------------------------------
+if "selected_tab" not in st.session_state:
+    st.session_state.selected_tab = "Dashboard"
+
+selected_tab = st.session_state.selected_tab
+
 with st.sidebar:
+    st.markdown("""
+    <style>
+    section[data-testid="stSidebar"] > div:first-child {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        padding-top: 0px !important;
+        margin-top: 0px !important;
+    }
+
+    .sidebar-top {
+        margin-top: -80px;
+        padding-top: 0px;
+    }
+
+    .sidebar-title {
+        font-size: 36px;
+        font-weight: 900;
+        letter-spacing: 1px;
+        color: var(--text-primary);
+        margin-top: 0px;
+        margin-bottom: 4px;
+    }
+
+    .sidebar-sub {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-secondary);
+        margin-bottom: 20px;
+    }
+
+    .sidebar-bottom {
+        margin-top: auto;
+        padding-top: 20px;
+        border-top: 1px solid var(--border);
+    }
+
+    /* Navigation Button Styling */
+    .stSidebar .stButton > button {
+        background: #1E293B;
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        height: 44px;
+        font-weight: 600;
+        transition: all 0.25s ease;
+    }
+
+    .stSidebar .stButton > button:hover {
+        background: linear-gradient(90deg, #00E5FF 0%, #3B82F6 40%, #7C3AED 100%);
+        color: #FFFFFF;
+        border: 1px solid #00E5FF;
+        box-shadow: 0 0 12px rgba(0, 229, 255, 0.6);
+        transform: translateY(-1px);
+    }
+
+    /* Selected (Primary) Navigation Button */
+    .stSidebar .stButton > button[kind="primary"] {
+        background: linear-gradient(90deg, #2563EB, #1E40AF);
+        color: white;
+        border: none;
+    }
+
+    .stSidebar .stButton > button[kind="primary"]:hover {
+        background: linear-gradient(90deg, #00F5FF 0%, #2563EB 50%, #8B5CF6 100%);
+        box-shadow: 0 0 14px rgba(59, 130, 246, 0.7);
+        transform: translateY(-1px);
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-top">', unsafe_allow_html=True)
     st.markdown('<div class="sidebar-title">SAR AI Copilot</div>', unsafe_allow_html=True)
     st.markdown('<div class="sidebar-sub">Compliance Platform</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown("---")
 
-    selected_tab = st.radio(
-        "Navigation Menu",
-        ["Dashboard", "Governance"],
-        label_visibility="collapsed"
-    )
+    selected_tab = st.session_state.selected_tab
 
-    st.markdown("---")
+    # --- Clean Navigation Cells ---
+    def nav_button(label):
+        is_selected = st.session_state.selected_tab == label
 
-    st.markdown("**Theme**")
-    theme_choice = st.radio(
-        "Theme Selection",
-        ["Light Mode", "Dark Mode"],
-        index=0 if st.session_state.theme == "light" else 1,
-        horizontal=True,
-        label_visibility="collapsed"
-    )
+        if st.button(
+            label,
+            use_container_width=True,
+            key=f"nav_{label}",
+            type="primary" if is_selected else "secondary"
+        ):
+            st.session_state.selected_tab = label
+            st.rerun()
 
-    new_theme = "light" if theme_choice == "Light Mode" else "dark"
-    if new_theme != st.session_state.theme:
-        st.session_state.theme = new_theme
-        st.rerun()
+    nav_button("Dashboard")
+    nav_button("Governance")
 
-    st.markdown("---")
+    st.markdown('<div class="sidebar-bottom">', unsafe_allow_html=True)
 
     st.markdown("**Demo Analyst**")
     st.caption("analyst@bank.com")
@@ -178,6 +203,7 @@ with st.sidebar:
 
     st.markdown("---")
     st.button("Sign Out")
+    st.markdown('</div>', unsafe_allow_html=True)
 
 llm = SARLLM()
 explain_engine = ExplainabilityEngine()
@@ -204,6 +230,33 @@ if "cases" not in st.session_state:
             "status": "UNDER_REVIEW",
             "alert_reason": "Structuring detected below reporting threshold.",
             "transaction_summary": "Frequent cash deposits slightly below compliance threshold."
+        },
+        {
+            "case_id": 3,
+            "customer_id": "CUST-003",
+            "customer_name": "Michael Tan",
+            "risk_score": 91.2,
+            "status": "NEW",
+            "alert_reason": "Rapid movement of funds across high-risk jurisdictions.",
+            "transaction_summary": "Three large transfers routed through layered shell accounts in 48 hours."
+        },
+        {
+            "case_id": 4,
+            "customer_id": "CUST-004",
+            "customer_name": "Sara Williams",
+            "risk_score": 67.4,
+            "status": "UNDER_REVIEW",
+            "alert_reason": "Inconsistent income declaration patterns.",
+            "transaction_summary": "Account activity inconsistent with declared business revenue profile."
+        },
+        {
+            "case_id": 5,
+            "customer_id": "CUST-005",
+            "customer_name": "Arjun Mehta",
+            "risk_score": 78.9,
+            "status": "NEW",
+            "alert_reason": "Structuring behavior across multiple accounts.",
+            "transaction_summary": "Repeated sub-threshold deposits across linked accounts within 5 days."
         }
     ]
 
@@ -228,14 +281,14 @@ if st.session_state.selected_case is None:
         }
         .gov-sub {
             font-size: 14px;
-            color: #94A3B8;
+            color: var(--text-secondary);
             margin-top: 6px;
         }
         .gov-card {
             padding: 18px;
             border-radius: 12px;
-            border: 1px solid #334155;
-            background-color: rgba(30,41,59,0.4);
+            border: 1px solid var(--border);
+            background-color: var(--card-overlay);
         }
         .gov-metric {
             font-size: 26px;
@@ -244,7 +297,7 @@ if st.session_state.selected_case is None:
         }
         .gov-label {
             font-size: 13px;
-            color: #94A3B8;
+            color: var(--text-secondary);
         }
         .role-badge {
             padding: 4px 10px;
@@ -252,12 +305,12 @@ if st.session_state.selected_case is None:
             font-size: 12px;
             font-weight: 600;
         }
-        .role-analyst { background:#1E40AF; color:white; }
-        .role-manager { background:#6D28D9; color:white; }
-        .role-admin { background:#B91C1C; color:white; }
+        .role-analyst { background: var(--role-analyst); color: var(--card); }
+        .role-manager { background: var(--role-manager); color: var(--card); }
+        .role-admin { background: var(--role-admin); color: var(--card); }
         .timeline-item {
             padding: 10px 0;
-            border-bottom: 1px solid #334155;
+            border-bottom: 1px solid var(--border);
             font-size: 14px;
         }
         </style>
@@ -345,6 +398,26 @@ if st.session_state.selected_case is None:
 
         st.stop()
 
+    st.markdown(
+        """
+        <div style="
+            display:flex;
+            align-items:center;
+            gap:10px;
+            font-size:14px;
+            font-weight:700;
+            letter-spacing:1px;
+            text-transform:uppercase;
+            color:#F59E0B;
+            padding-top: 15px;
+            margin-bottom:15px;
+        ">
+            <span style="font-size:16px;">⚠️</span>
+            AML Fraud Detection
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     st.markdown("## Case Intake Dashboard")
     st.caption("Operational AML monitoring and case workflow management")
 
@@ -358,10 +431,22 @@ if st.session_state.selected_case is None:
 
     m1, m2, m3, m4 = st.columns(4)
 
-    m1.metric("Total Active Cases", total_cases)
-    m2.metric("High Risk Cases", high_risk)
-    m3.metric("Medium Risk Cases", medium_risk)
-    m4.metric("Low Risk Cases", low_risk)
+    m1.markdown(f"""
+        <div style="font-size:14px; color:var(--text-secondary);">Total Active Cases</div>
+        <div style="font-size:34px; font-weight:800; color:#00AEEF;">{total_cases}</div>
+    """, unsafe_allow_html=True)
+    m2.markdown(f"""
+        <div style="font-size:14px; color:var(--text-secondary);">High Risk Cases</div>
+        <div style="font-size:34px; font-weight:800; color:#DC2626;">{high_risk}</div>
+    """, unsafe_allow_html=True)
+    m3.markdown(f"""
+        <div style="font-size:14px; color:var(--text-secondary);">Medium Risk Cases</div>
+        <div style="font-size:34px; font-weight:800; color:#F59E0B;">{medium_risk}</div>
+    """, unsafe_allow_html=True)
+    m4.markdown(f"""
+        <div style="font-size:14px; color:var(--text-secondary);">Low Risk Cases</div>
+        <div style="font-size:34px; font-weight:800; color:#22C55E;">{low_risk}</div>
+    """, unsafe_allow_html=True)
 
     st.markdown("---")
 
@@ -375,9 +460,18 @@ if st.session_state.selected_case is None:
     drafted = len([c for c in st.session_state.cases if c["status"] == "SAR_DRAFTED"])
 
     p1, p2, p3 = st.columns(3)
-    p1.metric("NEW", new_cases)
-    p2.metric("UNDER REVIEW", under_review)
-    p3.metric("SAR DRAFTED", drafted)
+    p1.markdown(f"""
+        <div style="font-size:13px; color:var(--text-secondary);">NEW</div>
+        <div style="font-size:30px; font-weight:800; color:#00AEEF;">{new_cases}</div>
+    """, unsafe_allow_html=True)
+    p2.markdown(f"""
+        <div style="font-size:13px; color:var(--text-secondary);">UNDER REVIEW</div>
+        <div style="font-size:30px; font-weight:800; color:#F59E0B;">{under_review}</div>
+    """, unsafe_allow_html=True)
+    p3.markdown(f"""
+        <div style="font-size:13px; color:var(--text-secondary);">SAR DRAFTED</div>
+        <div style="font-size:30px; font-weight:800; color:#22C55E;">{drafted}</div>
+    """, unsafe_allow_html=True)
 
     st.markdown("---")
 
@@ -393,27 +487,36 @@ if st.session_state.selected_case is None:
 
     st.markdown("---")
 
+    st.markdown("""
+<style>
+[data-testid="stHorizontalBlock"] > div:hover {
+    background-color: rgba(59,130,246,0.05);
+    transition: background-color 0.2s ease;
+}
+</style>
+""", unsafe_allow_html=True)
     # ===============================
-    # CASE TABLE HEADER
+    # INSTITUTIONAL TERMINAL HEADER
     # ===============================
-    h1, h2, h3, h4, h5, h6, h7, h8 = st.columns([0.6,2,1.2,1.2,1,1,1.2,1])
+    header_cols = st.columns([0.6, 2.2, 1, 1, 1.2, 0.8, 1, 1])
 
-    h1.markdown("**#**")
-    h2.markdown("**Customer**")
-    h3.markdown("**Risk Score**")
-    h4.markdown("**Risk Tier**")
-    h5.markdown("**Status**")
-    h6.markdown("**Type**")
-    h7.markdown("**SLA (hrs)**")
-    h8.markdown("**Action**")
+    header_cols[0].markdown("**ID**")
+    header_cols[1].markdown("**CUSTOMER**")
+    header_cols[2].markdown("**RISK SCORE**")
+    header_cols[3].markdown("**RISK**")
+    header_cols[4].markdown("**STATUS**")
+    header_cols[5].markdown("**SLA (HRS)**")
+    header_cols[6].markdown("**GEOGRAPHY**")
+    header_cols[7].markdown("**ACTION**")
 
-    st.markdown("---")
+    st.divider()
 
     # ===============================
     # CASE ROWS
     # ===============================
     for case in st.session_state.cases:
 
+        # Filtering logic
         if risk_filter == "High" and case["risk_score"] < 80:
             continue
         if risk_filter == "Medium" and not (70 <= case["risk_score"] < 80):
@@ -425,115 +528,162 @@ if st.session_state.selected_case is None:
         if search_query and search_query.lower() not in case["customer_name"].lower():
             continue
 
+        # Risk tier logic
         if case["risk_score"] >= 80:
-            risk_tier = "High"
-            risk_color = "🔴"
+            risk_label = "HIGH"
+            risk_color = "#DC2626"
         elif case["risk_score"] >= 70:
-            risk_tier = "Medium"
-            risk_color = "🟠"
+            risk_label = "MED"
+            risk_color = "#F59E0B"
         else:
-            risk_tier = "Low"
-            risk_color = "🟢"
+            risk_label = "LOW"
+            risk_color = "#22C55E"
 
-        sla_hours = 4 - case["case_id"]  # demo SLA logic
+        # SLA logic
+        sla_hours = max(0, 4 - case["case_id"])
 
-        c1, c2, c3, c4, c5, c6, c7, c8 = st.columns([0.6,2,1.2,1.2,1,1,1.2,1])
+        if sla_hours <= 0:
+            sla_color = "#DC2626"
+        elif sla_hours <= 1:
+            sla_color = "#F59E0B"
+        else:
+            sla_color = "#22C55E"
 
-        c1.write(case["case_id"])
-        c2.write(case["customer_name"])
-        c3.write(case["risk_score"])
-        c4.write(f"{risk_color} {risk_tier}")
-        c5.write(case["status"])
-        c6.write("AML")
-        c7.write(f"{sla_hours}h")
+        # Geography (demo value)
+        geography = "APAC" if case["case_id"] % 2 == 0 else "EMEA"
 
-        with c8:
-            if st.button("Open", key=f"open_case_{case['case_id']}"):
-                st.session_state.selected_case = case
-                st.rerun()
+        row_cols = st.columns([0.6, 2.2, 1, 1, 1.2, 0.8, 1, 1])
+
+        # ID
+        row_cols[0].markdown(f"#{case['case_id']}")
+
+        # Customer
+        row_cols[1].markdown(
+            f"**{case['customer_name']}**  \n"
+            f"<span style='color:#64748B; font-size:12px;'>{case['customer_id']} | {case['status']}</span>",
+            unsafe_allow_html=True
+        )
+
+        # Risk Score
+        row_cols[2].markdown(
+            f"<div style='font-weight:700; text-align:right; font-family:monospace;'>{case['risk_score']:.1f}</div>",
+            unsafe_allow_html=True
+        )
+
+        # Risk Tier
+        row_cols[3].markdown(
+            f"<span style='font-weight:700; color:{risk_color};'>{risk_label}</span>",
+            unsafe_allow_html=True
+        )
+
+        # Status
+        row_cols[4].markdown(case["status"])
+
+        # SLA (colored text only)
+        row_cols[5].markdown(
+            f"<div style='font-weight:700; color:{sla_color}; text-align:right; font-family:monospace;'>{sla_hours}h</div>",
+            unsafe_allow_html=True
+        )
+
+        # Geography
+        row_cols[6].markdown(geography)
+
+        if row_cols[7].button(
+            "Open",
+            key=f"open_case_{case['case_id']}",
+            use_container_width=True
+        ):
+            st.session_state.selected_case = case
+            st.rerun()
+
+        st.divider()
 
 else:
     case = st.session_state.selected_case
 
-    st.markdown("""
+    # Use CSS variables (defined in apply_theme) for all case detail colors
+    st.markdown(f"""
     <style>
-    .bb-header {
+    .bb-header {{
         padding: 20px 0;
-        border-bottom: 1px solid #334155;
+        border-bottom: 1px solid var(--border);
         margin-bottom: 20px;
-    }
-    .bb-title {
+    }}
+    .bb-title {{
         font-size: 28px;
         font-weight: 800;
         letter-spacing: 0.5px;
-    }
-    .bb-meta {
+    }}
+    .bb-meta {{
         font-size: 13px;
-        color: #94A3B8;
+        color: var(--text-secondary);
         margin-top: 6px;
-    }
-    .bb-badge-high {
-        background:#7F1D1D;
-        color:#FCA5A5;
+    }}
+    .bb-badge-high {{
+        background: var(--accent-danger);
+        color: var(--card);
         padding:4px 10px;
         border-radius:6px;
         font-size:12px;
         font-weight:600;
-    }
-    .bb-card {
-        background:#111827;
-        border:1px solid #1F2937;
+    }}
+    .bb-card {{
+        background: var(--card);
+        border:1px solid var(--border);
         border-radius:10px;
         padding:18px;
         margin-bottom:18px;
-    }
-    .bb-card:empty {
+    }}
+    .bb-card:empty {{
         display: none !important;
-    }
-    .bb-section-title {
+    }}
+    .bb-section-title {{
         font-size:14px;
         font-weight:700;
         letter-spacing:0.5px;
-        color:#9CA3AF;
+        color: var(--text-secondary);
         margin-bottom:12px;
         text-transform:uppercase;
-    }
-    .bb-metric {
+    }}
+    .bb-metric {{
         font-size:22px;
         font-weight:700;
-    }
-    .bb-small {
+    }}
+    .bb-small {{
         font-size:12px;
-        color:#6B7280;
-    }
-    .bb-risk-gauge {
+        color: var(--text-secondary);
+    }}
+    .bb-risk-gauge {{
         width:120px;
         height:120px;
         border-radius:50%;
-        background:conic-gradient(#DC2626 calc(var(--risk)*1%), #1F2937 0%);
+        background:conic-gradient(var(--accent-danger) calc(var(--risk)*1%), var(--gauge-rest) 0%);
         display:flex;
         align-items:center;
         justify-content:center;
         font-size:26px;
         font-weight:700;
-        color:white;
+        color: var(--text-primary);
         margin:auto;
-    }
-    .bb-divider {
-        border-top:1px solid #1F2937;
+    }}
+    .bb-divider {{
+        border-top:1px solid var(--border);
         margin:20px 0;
-    }
+    }}
     </style>
     """, unsafe_allow_html=True)
 
     # ===============================
     # HEADER
     # ===============================
-    st.markdown("""
-    <div style="font-size:36px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; color:#F1F5F9; margin-bottom:18px;">
-    Case Details Overview
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div style="font-size:36px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-primary); margin-bottom:18px;">
+        Case Details Overview
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     header_left, header_right = st.columns([4,1])
 
