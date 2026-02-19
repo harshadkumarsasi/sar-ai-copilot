@@ -74,7 +74,6 @@ def apply_theme():
             color: var(--text-primary);
         }}
 
-        header {{visibility: hidden;}}
         .block-container {{
             padding-top: 0rem;
         }}
