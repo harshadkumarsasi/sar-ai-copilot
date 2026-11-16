@@ -12,7 +12,6 @@ This file is intentionally lightweight and hackathon-safe.
 """
 
 import os
-from datetime import datetime
 from typing import Optional, Dict, Any
 
 import psycopg2
