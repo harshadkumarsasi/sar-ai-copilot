@@ -18,23 +18,7 @@
 
 Watch one case go from intake to a regulator-ready PDF in about a minute.
 
-<!--
-ADD YOUR SCREEN RECORDING HERE:
-1. Open this README on github.com and click the pencil (Edit) icon.
-2. Drag your .mp4 / .mov file into the editor. GitHub uploads it and inserts a link on its own line.
-3. Make sure that link sits on its own line directly under this comment, then delete this whole comment block.
-If the file is too big, trim it to 30-60 seconds or upload it to YouTube as Unlisted and paste the link instead.
--->
-
-<!--
-ADD 3-4 SCREENSHOTS (create a docs/ folder in the repo and upload the images there), then uncomment:
-| Case intake | Risk breakdown |
-| --- | --- |
-| ![Case intake](docs/case-intake.png) | ![Risk breakdown](docs/risk-breakdown.png) |
-| AI-generated SAR draft | PDF export |
-| --- | --- |
-| ![SAR draft](docs/sar-draft.png) | ![PDF export](docs/pdf-export.png) |
--->
+https://youtu.be/Z1AZtC7cvdw
 
 > The app runs **locally** on purpose: the language model is served by Ollama on your own machine, so there is no public hosted demo. The video above shows the full flow.
 
